@@ -1,44 +1,17 @@
-import React, { useState } from "react";
-import { Container, TextField, Button, Grid, Typography } from "@mui/material";
-import { useRouter } from "next/router";
+import React from "react";
+import { Grid, Typography } from "@mui/material";
 import Link from "next/link";
-import CustomTextField from "@/components/CustomTextField";
-import CustomButton from "@/components/signInUpPage/CustomButton";
 import CustomImage from "@/components/signInUpPage/CustomImage";
 import CustomContainer from "@/components/signInUpPage/CustomContainer";
-import CustomDropdown from "@/components/CustomDropDown";
+import CustomButton from "@/components/signInUpPage/CustomButton";
 import CustomTypo from "@/components/signInUpPage/CustomTypo";
+import CustomInput from "@/components/CustomTextField";
+import CustomDropdown from "@/components/CustomDropDown";
+import { useRegistrationForm } from "../../components/Registration";
 
-export default function Login() {
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [role, setRole] = useState<string>("");
-  const router = useRouter();
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.name);
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleLogin = () => {
-    if (email && password) {
-      router.push("/todo/todoList");
-    } else {
-      alert("Enter username and password");
-    }
-  };
-
-  const handleRoleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setRole(event.target.value as string);
-  };
+export default function RegistrationPage() {
+  const { register, handleSubmit, errors, handleRegistration } =
+    useRegistrationForm();
 
   return (
     <CustomContainer>
@@ -47,44 +20,42 @@ export default function Login() {
           <CustomImage />
         </Grid>
         <Grid item xs={12} md={6}>
-          <form>
+          <form onSubmit={handleSubmit(handleRegistration)}>
             <Typography variant="h4" gutterBottom>
               Registration
             </Typography>
-            <CustomTextField
+            <CustomInput
               label="Username"
-              name="username"
-              type="string"
-              value={name}
-              onChange={handleNameChange}
+              name="name"
+              register={register}
+              errors={errors}
             />
-            <CustomTextField
+            <CustomInput
               label="Email"
               name="email"
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
+              register={register}
+              errors={errors}
             />
-            <CustomTextField
+            <CustomInput
               label="Password"
               name="password"
-              type="Password"
-              value={password}
-              onChange={handlePasswordChange}
+              register={register}
+              errors={errors}
             />
             <CustomDropdown
-              value={role}
-              label="Select a role"
-              onChange={handleRoleChange}
+              label="User Type"
+              name="userType"
+              register={register}
               options={[
-                { value: "teacher", label: "Teacher" },
-                { value: "student", label: "Student" },
+                { value: "Student", label: "Student" },
+                { value: "Teacher", label: "Teacher" },
               ]}
+              errors={errors}
             />
-            <CustomButton label="Registration" onClick={handleLogin} />
+            <CustomButton label="Registration" />
           </form>
           <CustomTypo>
-            <Link href="/login"> Login to your account </Link>
+            <Link href="/login">Login to your account</Link>
           </CustomTypo>
         </Grid>
       </Grid>

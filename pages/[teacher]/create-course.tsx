@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { Button, Grid, Typography, Paper } from "@mui/material";
+import {  Grid, Typography, Paper } from "@mui/material";
 import Navbar from "@/components/nav-element/Navbar";
 import CustomTextField from "@/components/CustomTextField"; // Import the custom text field component
 import CustomGridItem from "@/components/form-component/CustomGrid";
+import { CourseType } from "@/components/interfaces/CreateCourse";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import CustomButton from "@/components/signInUpPage/CustomButton";
+import * as yup from 'yup'
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const navLinks = [
   { href: "/home", text: "Home" },
@@ -10,43 +16,51 @@ const navLinks = [
   { href: "/home", text: "Contact" },
 ];
 
-interface FormProps {
-  onSubmit: (formData: FormData) => void;
-}
+const ACCESS_TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZnVhZEBnbWFpbC5jb20iLCJ0eXBlIjoiVGVhY2hlciIsImlhdCI6MTcwNjc4NzM1MywiZXhwIjoxNzA2ODczNzUzfQ.4CscVtEF0JuTeAdv9XBY7b2SOlpVlVZnLDfEjxYyE7I";
 
-interface FormData {
-  courseCode: string;
-  courseName: string;
-  courseDescription: string;
-  courseCredit: number;
-}
+export default function CreateCourseForm() {
+  const schema = yup.object().shape({
+    courseCode: yup.number().positive().integer().required("Course code must be number"),
+    courseName: yup.string().required("Name is required"),
+    courseDescription: yup.string().required("Course description is required"),
+    credit: yup.number().integer().positive().required("Course credit must be number"),
+  })
 
-const Form: React.FC<FormProps> = ({ onSubmit }) => {
-  const [formData, setFormData] = useState<FormData>({
-    courseCode: "",
-    courseName: "",
-    courseDescription: "",
-    courseCredit: 0,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CourseType>({
+    resolver: yupResolver(schema)
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onSubmit(formData);
+  const handleCreateCourse = async (formData: CourseType) => {
+    try {
+      const response = await axios.post(
+        "http://192.168.13.126:3000/courses",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+          },
+        }
+      );
+      alert("Course Created successfully");
+      console.log(formData)
+    } catch (error: any) {
+      alert(`Course creation failed ${error?.response?.data?.message}`);
+    } finally {
+      reset();
+    }
   };
 
   return (
     <div>
       <Navbar title="News Website" links={navLinks} />
       <Paper elevation={3} style={{ padding: "20px" }}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(handleCreateCourse)}>
           <Grid
             container
             spacing={2}
@@ -62,49 +76,40 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
               <CustomTextField
                 label="Course Code"
                 name="courseCode"
-                value={formData.courseCode}
-                onChange={handleChange}
+                register={register}
+                errors={errors}
               />
             </CustomGridItem>
             <CustomGridItem>
               <CustomTextField
                 label="Course Name"
                 name="courseName"
-                value={formData.courseName}
-                onChange={handleChange}
+                register={register}
+                errors={errors}
               />
             </CustomGridItem>
             <CustomGridItem>
               <CustomTextField
                 label="Course Description"
                 name="courseDescription"
-                value={formData.courseDescription}
-                onChange={handleChange}
+                register={register}
+                errors={errors}
               />
             </CustomGridItem>
             <CustomGridItem>
               <CustomTextField
                 label="Course Credit"
-                name="courseCredit"
-                value={formData.courseCredit}
-                onChange={handleChange}
+                name="credit"
+                register={register}
+                errors={errors}
               />
             </CustomGridItem>
             <CustomGridItem>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                type="submit"
-              >
-                Submit
-              </Button>
+              <CustomButton label="Create" />
             </CustomGridItem>
           </Grid>
         </form>
       </Paper>
     </div>
   );
-};
-
-export default Form;
+}

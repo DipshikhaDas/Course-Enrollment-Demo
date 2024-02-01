@@ -1,23 +1,23 @@
-// CustomDropdown.tsx
-
 import React from 'react';
-import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { UseFormRegister, FieldValues } from 'react-hook-form';
 
 interface CustomDropdownProps {
   label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<{ value: unknown }>) => void;
+  name: string;
+  register: UseFormRegister<any>;
   options: { value: string; label: string }[];
+  errors: any;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ label, value, onChange, options }) => {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ label, name, register, options, errors }) => {
   return (
     <FormControl fullWidth variant="outlined" margin="normal">
       <InputLabel>{label}</InputLabel>
       <Select
-        value={value}
-        onChange={onChange}
         label={label}
+        {...register(name)}
+        error={!!errors[name]}
       >
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -27,6 +27,6 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ label, value, onChange,
       </Select>
     </FormControl>
   );
-}
+};
 
 export default CustomDropdown;

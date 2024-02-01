@@ -1,31 +1,27 @@
-// CustomTextField.tsx
-
 import React from 'react';
-import { TextField } from "@mui/material";
+import { TextField } from '@mui/material';
 
-interface CustomTextFieldTypes {
+interface CustomInputProps {
   label: string;
   name: string;
   type?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  register: any;
+  errors: any;
 }
 
-const CustomTextField: React.FC<CustomTextFieldTypes> = ({ label, name, type = "text", value, onChange }) => {
+const CustomInput: React.FC<CustomInputProps> = ({ label, name, type = 'text', register, errors }) => {
   return (
     <TextField
       label={label}
-      name={name}
-      type={type}
       variant="outlined"
       fullWidth
       margin="normal"
-      value={value}
-      onChange={onChange}
+      type={type}
+      {...register(name)}
+      error={!!errors[name]}
+      helperText={errors[name]?.message}
     />
   );
-}
+};
 
-
-
-export default CustomTextField;
+export default CustomInput;

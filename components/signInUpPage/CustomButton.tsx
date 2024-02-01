@@ -4,17 +4,16 @@ import React from 'react';
 import { Button } from "@mui/material";
 
 interface CustomButtonProps {
-  label: string;
-  onClick: () => void;
+  label: string
 }
 
-const CustomButton: React.FC<CustomButtonProps> = ({ label, onClick }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({ label }) => {
   return (
     <Button
       variant="contained"
       color="primary"
       fullWidth
-      onClick={onClick}
+      type='submit'
       sx={{ marginBottom: '10px' }}
     >
       {label}

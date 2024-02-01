@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import {
-  Container,
-  TextField,
-  Button,
   Grid,
   Typography,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -15,27 +10,26 @@ import CustomButton from "@/components/signInUpPage/CustomButton";
 import CustomImage from "@/components/signInUpPage/CustomImage";
 import CustomContainer from "@/components/signInUpPage/CustomContainer";
 import CustomTypo from "@/components/signInUpPage/CustomTypo";
+import { useForm } from "react-hook-form";
+import axios from "axios";
 
 export default function Login() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const router = useRouter();
+  const {register, handleSubmit, formState:{errors}, reset} = useForm<FormData>()
+  const router = useRouter()
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleLogin = () => {
-    if (email && password) {
-      router.push("/");
-    } else {
-      alert("Enter username and password");
+  const handleLogin = async (formData: FormData) => {
+    try{
+      const response = await axios.post("http://192.168.13.126:3000/users/public/signin", formData)
+      console.log(response.data.userType)
+      const route = response.data?.userType === 'Teacher' ? '/teacher/create-course' : '/student';
+      router.push(route);
+    }catch(error : any){
+      console.log(error)
+      alert(`Login failed ${error?.response?.data?.message}`)
+    }finally{
+      reset()
     }
-  };
+  }
 
   return (
     <CustomContainer>
@@ -44,25 +38,23 @@ export default function Login() {
           <CustomImage />
         </Grid>
         <Grid item xs={12} md={6}>
-          <form>
+          <form onSubmit={handleSubmit(handleLogin)}>
             <Typography variant="h4" gutterBottom>
               Login
             </Typography>
             <CustomTextField
               label="Email"
               name="email"
-              type="email"
-              value={email}
-              onChange={handleEmailChange}
+              register={register}
+              errors={errors}
             />
             <CustomTextField
               label="Password"
               name="password"
-              type="Password"
-              value={password}
-              onChange={handlePasswordChange}
+              register={register}
+              errors={errors}
             />
-            <CustomButton label="Login" onClick={handleLogin} />
+            <CustomButton label="Login" />
           </form>
           <CustomTypo>
             <Link href="/registration"> Create new account </Link>
