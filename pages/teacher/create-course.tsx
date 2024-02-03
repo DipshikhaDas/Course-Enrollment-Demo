@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {  Grid, Typography, Paper } from "@mui/material";
+import {  Grid, Typography, Paper, Box } from "@mui/material";
 import Navbar from "@/components/nav-element/Navbar";
 import CustomTextField from "@/components/CustomTextField"; // Import the custom text field component
 import CustomGridItem from "@/components/form-component/CustomGrid";
@@ -10,11 +10,6 @@ import CustomButton from "@/components/signInUpPage/CustomButton";
 import * as yup from 'yup'
 import { yupResolver } from "@hookform/resolvers/yup";
 
-const navLinks = [
-  { href: "/home", text: "Home" },
-  { href: "/home", text: "About" },
-  { href: "/home", text: "Contact" },
-];
 
 const ACCESS_TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZnVhZEBnbWFpbC5jb20iLCJ0eXBlIjoiVGVhY2hlciIsImlhdCI6MTcwNjc4NzM1MywiZXhwIjoxNzA2ODczNzUzfQ.4CscVtEF0JuTeAdv9XBY7b2SOlpVlVZnLDfEjxYyE7I";
@@ -57,8 +52,7 @@ export default function CreateCourseForm() {
   };
 
   return (
-    <div>
-      <Navbar title="News Website" links={navLinks} />
+    <Box sx={{ maxWidth: 800, margin: 'auto', marginTop: '120px'}}>
       <Paper elevation={3} style={{ padding: "20px" }}>
         <form onSubmit={handleSubmit(handleCreateCourse)}>
           <Grid
@@ -110,6 +104,6 @@ export default function CreateCourseForm() {
           </Grid>
         </form>
       </Paper>
-    </div>
+    </Box>
   );
 }
