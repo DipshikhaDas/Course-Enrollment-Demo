@@ -7,22 +7,8 @@ function HomeData() {
     unpublished: true,
   };
 
-  const courses = [
-    {
-      name: "Course 1",
-      description: "John Doe requested to enroll in the course",
-    },
-    {
-      name: "Course 2",
-      description: "Jane Smith requested to enroll in the course",
-    },
-    {
-      name: "Course 3",
-      description: "Max Moller requested to enroll in the course",
-    },
-  ];
 
-  return { cardData, courses };
+  return { cardData };
 };
 
 export default HomeData;

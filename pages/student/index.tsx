@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -9,47 +9,51 @@ import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
-import StarIcon from "@mui/icons-material/StarBorder";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
 import GlobalStyles from "@mui/material/GlobalStyles";
-import Container from "@mui/material/Container";
-import { List, ListItem, ListItemText, Paper } from "@mui/material";
-import ViewCourseCard from "@/components/courseCards/ViewCourseCard";
+import { Paper } from "@mui/material";
 import HomeData from "@/components/teacher/HomeData";
 import PublishCard from "@/components/courseCards/PublishCourseCard";
+import { useEffect } from "react";
+import axios, { AxiosRequestConfig } from "axios";
+import { Enrollment } from "@/components/interfaces/Enrollment";
+import { NotEnrolledCourse } from "@/components/interfaces/NotEnrolledCourse";
 
-const tiers = [
-  {
-    title: "Free",
-    price: "0",
-    description: [
-      "10 users included",
-      "2 GB of storage",
-    ],
-  },
-  {
-    title: "Pro",
-    price: "15",
-    description: [
-      "20 users included",
-      "10 GB of storage",
-    ],
-  },
-  {
-    title: "Enterprise",
-    price: "30",
-    description: [
-      "50 users included",
-      "30 GB of storage",
-    ],
-  },
-];
 const defaultTheme = createTheme();
 
 export default function Pricing() {
-  const { cardData, courses } = HomeData();
+  const { cardData } = HomeData();
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+  const [notEnrolled, setNotEnrolled] = useState<NotEnrolledCourse[]>([])
+
+  useEffect(() => {
+    async function fetchStudentData() {
+      try {
+        const headers: AxiosRequestConfig["headers"] = {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        };
+        const response = await axios.get(
+          "http://192.168.13.126:3000/enrollments/myEnrollments",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+        const response1 = await axios.get(
+          "http://192.168.13.126:3000/courses/published-not-enrolled",
+          {headers}
+        );
+        setEnrollments(response.data);
+        setNotEnrolled(response1.data)
+        // console.log(response1.data)
+        console.log('not enrolled', notEnrolled);
+      } catch (error: any) {
+        alert(`Error occured ${error?.response?.data?.message}`);
+      }
+    }
+    fetchStudentData();
+  }, []);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -72,28 +76,25 @@ export default function Pricing() {
         <Box>
           <Grid container spacing={8}>
             <Grid item xs={8}>
-            <Typography
-                component="h1"
+              <Typography
                 variant="h4"
                 color="text.primary"
                 // gutterBottom
-                sx = {{ marginBottom: 4 }}
+                sx={{
+                  marginBottom: 4,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
               >
-                Your course
+                Your courses
               </Typography>
               <Paper sx={{ p: 2, bgcolor: "#f3f3f3", borderRadius: 4 }}>
                 <Grid container spacing={4}>
-                  {tiers.map((tier) => (
-                    <Grid
-                      item
-                      key={tier.title}
-                      xs={12}
-                      sm={tier.title === "Enterprise"}
-                      md={4}
-                    >
+                  {enrollments.map((enrollment) => (
+                    <Grid item key={enrollment.id} xs={12} md={4}>
                       <Card>
                         <CardHeader
-                          title={tier.title}
+                          title={enrollment.course.courseName}
                           titleTypographyProps={{ align: "center" }}
                           subheaderTypographyProps={{
                             align: "center",
@@ -114,32 +115,22 @@ export default function Pricing() {
                               mb: 2,
                             }}
                           >
-                            <Typography
-                              component="h2"
-                              variant="h3"
-                              color="text.primary"
-                            >
-                              ${tier.price}
-                            </Typography>
-                            <Typography variant="h6" color="text.secondary">
-                              /mo
+                            <Typography variant="h7">
+                              <Box>
+                                {`Course Code: ${enrollment.course.courseCode}`}
+                              </Box>
+                              <Box>
+                                {`Course Credit: ${enrollment.course.credit}`}
+                              </Box>
+                              <Box sx={{ mt: 3 }}>
+                                {enrollment.approved
+                                  ? "Approved"
+                                  : "Not Approved yet"}
+                              </Box>
                             </Typography>
                           </Box>
-                          <ul>
-                            {tier.description.map((line) => (
-                              <Typography
-                                component="li"
-                                variant="subtitle1"
-                                align="center"
-                                key={line}
-                              >
-                                {line}
-                              </Typography>
-                            ))}
-                          </ul>
                         </CardContent>
-                        <CardActions>
-                        </CardActions>
+                        <CardActions></CardActions>
                       </Card>
                     </Grid>
                   ))}
@@ -148,22 +139,22 @@ export default function Pricing() {
             </Grid>
             <Grid item xs={4}>
               <Typography
-                component="h1"
                 variant="h4"
                 color="text.primary"
                 // gutterBottom
+                sx={{ display: "flex", justifyContent: "center" }}
               >
-                Latest Courses
+                Available Courses
               </Typography>
               <Box>
-                {[...Array(3)].map((_, index) => (
+                {notEnrolled.map((course, index) => (
                   <Box key={index}>
                     <CardContent sx={{ textAlign: "center" }}></CardContent>
                     <PublishCard
-                      title={cardData.title}
+                      title={course.courseName}
                       image={cardData.image}
-                      buttonText="View Details"
-                      link='/student/newCourse'
+                      // buttonText="View Details"
+                      link="/student/newCourse"
                     />
                   </Box>
                 ))}

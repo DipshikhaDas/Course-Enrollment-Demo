@@ -14,9 +14,12 @@ import Menu from '@mui/material/Menu';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/router';
 
 export default function MenuAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const router = useRouter()
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -25,6 +28,11 @@ export default function MenuAppBar() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  function handleLogout(){
+    localStorage.setItem('accessToken', '')
+    router.push('/login')
+  }
 
   return (
       <AppBar sx={{ height: '80px' }}>
@@ -54,8 +62,8 @@ export default function MenuAppBar() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem ><PermIdentityIcon />Account</MenuItem>
-                <MenuItem ><LogoutIcon />Logout</MenuItem>
+                {/* <MenuItem ><PermIdentityIcon />Account</MenuItem> */}
+                <MenuItem ><Button onClick={() => handleLogout()}><LogoutIcon />Logout</Button></MenuItem>
               </Menu>
             
         </Toolbar>

@@ -4,9 +4,10 @@ import { Card, CardContent, CardMedia, Typography } from "@mui/material";
 interface ViewCourseCardProps {
   title: string;
   description: string;
+  courseCode: number
 }
 
-const ViewCourseCard: React.FC<ViewCourseCardProps> = ({ title, description }) => {
+const ViewCourseCard: React.FC<ViewCourseCardProps> = ({ title, description, courseCode }) => {
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <CardMedia
@@ -19,7 +20,7 @@ const ViewCourseCard: React.FC<ViewCourseCardProps> = ({ title, description }) =
       />
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography gutterBottom variant="h5" component="h2">
-          {title}
+          {title} ({courseCode})
         </Typography>
         <Typography>{description}</Typography>
       </CardContent>

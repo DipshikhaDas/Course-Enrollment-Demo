@@ -21,7 +21,11 @@ export default function Login() {
     try{
       const response = await axios.post("http://192.168.13.126:3000/users/public/signin", formData)
       console.log(response.data.userType)
-      const route = response.data?.userType === 'Teacher' ? '/teacher/create-course' : '/student';
+      const route = response.data?.userType === 'Teacher' ? '/teacher/home/' : '/student';
+      const ACCESS_TOKEN = response.data.tokens.accesstoken
+      console.log(ACCESS_TOKEN) 
+      localStorage.setItem("accessToken", ACCESS_TOKEN)
+      console.log(localStorage.getItem("accessToken"))
       router.push(route);
     }catch(error : any){
       console.log(error)

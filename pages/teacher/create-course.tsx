@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {  Grid, Typography, Paper, Box } from "@mui/material";
+import {  Grid, Typography, Paper, Box, Link } from "@mui/material";
 import Navbar from "@/components/nav-element/Navbar";
 import CustomTextField from "@/components/CustomTextField"; // Import the custom text field component
 import CustomGridItem from "@/components/form-component/CustomGrid";
@@ -9,10 +9,6 @@ import axios from "axios";
 import CustomButton from "@/components/signInUpPage/CustomButton";
 import * as yup from 'yup'
 import { yupResolver } from "@hookform/resolvers/yup";
-
-
-const ACCESS_TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsImVtYWlsIjoiZnVhZEBnbWFpbC5jb20iLCJ0eXBlIjoiVGVhY2hlciIsImlhdCI6MTcwNjc4NzM1MywiZXhwIjoxNzA2ODczNzUzfQ.4CscVtEF0JuTeAdv9XBY7b2SOlpVlVZnLDfEjxYyE7I";
 
 export default function CreateCourseForm() {
   const schema = yup.object().shape({
@@ -25,7 +21,7 @@ export default function CreateCourseForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<CourseType>({
     resolver: yupResolver(schema)
@@ -38,7 +34,7 @@ export default function CreateCourseForm() {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         }
       );
@@ -99,11 +95,12 @@ export default function CreateCourseForm() {
               />
             </CustomGridItem>
             <CustomGridItem>
-              <CustomButton label="Create" />
+              <CustomButton label="Create" disable={isSubmitting} />
             </CustomGridItem>
           </Grid>
         </form>
       </Paper>
+      <Link href="/teacher/home" sx={{ fontFamily: 'bold', textDecoration: 'underline', color: 'primary', fontSize: '25px', mt: '5px' }}> Back to home page </Link>
     </Box>
   );
 }

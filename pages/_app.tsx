@@ -10,11 +10,19 @@ export default function App(props: AppProps) {
 
   const router = useRouter();
 
+  const isInitialPage = router.pathname === '/home' || router.pathname === '/login' || router.pathname === '/registration'
+  
+
   return (
     <AppCacheProvider {...props}>
-      <Layout>
+      {!isInitialPage && (
+              <Layout>
+              <Component {...pageProps} />
+            </Layout>
+      )}
+      {isInitialPage && (
         <Component {...pageProps} />
-      </Layout>
+      )}
     </AppCacheProvider>
   );
 }
