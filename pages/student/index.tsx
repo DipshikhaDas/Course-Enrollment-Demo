@@ -27,32 +27,31 @@ export default function Pricing() {
   const [notEnrolled, setNotEnrolled] = useState<NotEnrolledCourse[]>([])
 
   useEffect(() => {
-    async function fetchStudentData() {
-      try {
-        const headers: AxiosRequestConfig["headers"] = {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        };
-        const response = await axios.get(
-          "http://192.168.13.126:3000/enrollments/myEnrollments",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        const response1 = await axios.get(
-          "http://192.168.13.126:3000/courses/published-not-enrolled",
-          {headers}
-        );
-        setEnrollments(response.data);
-        setNotEnrolled(response1.data)
-        // console.log(response1.data)
-        console.log('not enrolled', notEnrolled);
-      } catch (error: any) {
-        alert(`Error occured ${error?.response?.data?.message}`);
-      }
-    }
-    fetchStudentData();
+    // async function fetchStudentData() {
+    //   try {
+    //     const headers: AxiosRequestConfig["headers"] = {
+    //       Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    //     };
+    //     const response = await axios.get(
+    //       "http://192.168.13.126:3000/enrollments/myEnrollments",
+    //       {
+    //         headers: {
+    //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    //         },
+    //       }
+    //     );
+    //     const response1 = await axios.get(
+    //       "http://192.168.13.126:3000/courses/published-not-enrolled",
+    //       {headers}
+    //     );
+    //     setEnrollments(response.data);
+    //     setNotEnrolled(response1.data)
+    //     console.log('not enrolled', notEnrolled);
+    //   } catch (error: any) {
+    //     alert(`Error occured ${error?.response?.data?.message}`);
+    //   }
+    // }
+    // fetchStudentData();
   }, []);
 
   return (

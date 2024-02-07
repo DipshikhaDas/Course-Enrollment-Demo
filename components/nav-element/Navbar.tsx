@@ -16,6 +16,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import { Button } from '@mui/material';
 import { useRouter } from 'next/router';
+import authInstance from '@/services/ApiService/AuthInstance';
 
 export default function MenuAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -30,7 +31,7 @@ export default function MenuAppBar() {
   };
 
   function handleLogout(){
-    localStorage.setItem('accessToken', '')
+    localStorage.removeItem('accessToken')
     router.push('/login')
   }
 
@@ -43,7 +44,6 @@ export default function MenuAppBar() {
               <IconButton
                 onClick={handleMenu}
                 color="inherit"
-                // sx={{ width: 100, }}
               >
                 <AccountCircle sx={{ width: 40, height: 50, mr: 4, mt: 1.2 }} />
               </IconButton>
@@ -62,7 +62,6 @@ export default function MenuAppBar() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                {/* <MenuItem ><PermIdentityIcon />Account</MenuItem> */}
                 <MenuItem ><Button onClick={() => handleLogout()}><LogoutIcon />Logout</Button></MenuItem>
               </Menu>
             

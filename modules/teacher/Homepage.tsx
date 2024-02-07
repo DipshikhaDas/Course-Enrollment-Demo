@@ -1,59 +1,73 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Card,
   CardContent,
-  CardMedia,
-  FormControl,
   Grid,
-  InputLabel,
   List,
   ListItem,
   ListItemText,
-  NativeSelect,
   Paper,
   Typography,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Link from "next/link";
-import SendIcon from "@mui/icons-material/Send";
-import { useRouter } from "next/router";
 import HomeData from "../../components/teacher/HomeData";
 import ViewCourseCard from "../../components/courseCards/ViewCourseCard";
 import PublishCard from "../../components/courseCards/PublishCourseCard";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import axios from "axios";
+import { Enrollment } from "@/components/interfaces/Enrollment";
+import { Course } from "@/components/interfaces/CourseDetails";
+import SelectBatch from "@/components/teacher/SelectBatchDropDown";
+import { options } from "@/components/teacher/SelectBatchData";
+import authInstance from "@/services/ApiService/AuthInstance";
+import FetchPublishCourseData from "@/services/FetchData/fetchCourseData";
+import { json } from "stream/consumers";
 import { Unpublished } from "@mui/icons-material";
+import fetchEnrollmentData from "@/services/FetchData/fetchEnrollmentData";
+import FetchEnrollmentData from "@/services/FetchData/fetchEnrollmentData";
+import AssignStudent from "@/services/PostPutPatch/assignStudent";
 
-interface Course{
-  couseCode: number,
-  courseName: string,
-  courseDescription: string,
-  courseCredit: number,
-  isPublished: boolean,
-}
+const HomePage: React.FC = () => {
+  const { cardData } = HomeData();
 
-const Home: React.FC = () => {
-  const { cardData, courses } = HomeData();
+  const [published, setPublished] = useState<Course[]>([]);
+  const [unPublished, setUnPublished] = useState<Course[]>([]);
+  const [approvedEnrollments, setApprovedEnrollments] = useState<Enrollment[]>(
+    []
+  );
+  const [notApprovedEnrollments, setNotApprovedEnrollments] = useState<
+    Enrollment[]
+  >([]);
+  const [batch, setBatch] = useState<string>("A");
+
+  const handleBatchChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setBatch(event.target.value as string);
+  };
 
   useEffect(() => {
-    async function FetchPublishCourseData() {
-      try {
-        const response = await axios.get(
-          "http://192.168.13.126:3000/teachers/courses",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }
-        );
-        console.log(response.data)
-      } catch (error:any) {
-        alert(`Course creation failed ${error?.response?.data?.message}`);
-      }
-    }
     FetchPublishCourseData()
+    const storedPublished = localStorage.getItem('published')
+    const storedUnPublished = localStorage.getItem('unPublished')
+
+    if(storedPublished && storedUnPublished){
+      const parsedPublished: Course[] = JSON.parse(storedPublished)
+      setPublished(parsedPublished)
+      const parsedUnPublished: Course[] = JSON.parse(storedUnPublished)
+      setUnPublished(parsedUnPublished)
+    }
+
+    FetchEnrollmentData()
+    const storedApproved = localStorage.getItem('approvedEnrollment')
+    const storedNotApproved = localStorage.getItem('notApprovedEnrollment')
+
+    if(storedApproved && storedNotApproved){
+      const parsedApproved: Enrollment[] = JSON.parse(storedApproved)
+      setApprovedEnrollments(parsedApproved)
+      const parsedNotApproved: Enrollment[] = JSON.parse(storedNotApproved)
+      setNotApprovedEnrollments(parsedNotApproved)
+    }
   }, []);
 
   return (
@@ -72,38 +86,32 @@ const Home: React.FC = () => {
         </Button>
       </Box>
       <Box>
-        <Typography
-          component="h4"
-          variant="h4"
-          color="text.primary"
-          gutterBottom
-        >
+        <Typography variant="h4" gutterBottom>
           Your course
         </Typography>
         <Grid container spacing={8}>
           <Grid item xs={8}>
             <Paper sx={{ p: 2, bgcolor: "#f3f3f3", borderRadius: 4 }}>
               <Grid container spacing={4}>
-                {[...Array(9)].map((_, index) => (
+                {published.map((course, index) => (
                   <Grid key={index} item xs={4}>
                     <ViewCourseCard
-                      title="Example Title"
-                      description="This is an example description."
+                      title={course.courseName}
+                      description={course.courseDescription}
+                      courseCode={course.courseCode}
                     />
                   </Grid>
                 ))}
               </Grid>
             </Paper>
           </Grid>
-          {/* List */}
           <Grid item xs={4}>
             <List sx={{ border: "1px solid #ccc", borderRadius: 4 }}>
-              {courses.map((course, index) => (
+              {notApprovedEnrollments.map((enrollment, index) => (
                 <React.Fragment key={index}>
                   <ListItem>
                     <ListItemText
-                      primary={course.name}
-                      secondary={course.description}
+                      secondary={`${enrollment.student.name}(${enrollment.student.id}) has requested to enroll into ${enrollment.course.courseName} (${enrollment.course.courseCode})`}
                     />
                   </ListItem>
                   <ListItem
@@ -114,21 +122,17 @@ const Home: React.FC = () => {
                       borderBottom: "1px solid #ccc",
                     }}
                   >
-                    <FormControl sx={{ maxWidth: 200 }}>
-                      <InputLabel variant="standard" htmlFor={`age-${index}`}>
-                        Assign Batch
-                      </InputLabel>
-                      <NativeSelect
-                        inputProps={{
-                          name: "Assign Batch",
-                        }}
-                      >
-                        <option value={1}>Batch - 1</option>
-                        <option value={2}>Batch - 2</option>
-                        <option value={3}>Batch - 3</option>
-                      </NativeSelect>
-                    </FormControl>
-                    <Button size="small" variant="outlined">
+                    <SelectBatch
+                      label="Assign Batch"
+                      options={options}
+                      value={batch}
+                      onChange={handleBatchChange}
+                    />
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => AssignStudent(enrollment.id, batch)}
+                    >
                       <CheckCircleOutlineIcon sx={{ mr: 1 }} /> Approve
                     </Button>
                   </ListItem>
@@ -137,24 +141,18 @@ const Home: React.FC = () => {
             </List>
 
             <Box>
-              <Typography
-                // component="h1"
-                variant="h5"
-                // color="text.primary"
-                // gutterBottom
-                sx={{ mt: 4, mb: -3 }}
-              >
+              <Typography variant="h5" sx={{ mt: 4, mb: -3 }}>
                 Unpublished course
               </Typography>
-              {Unpublished.map((course, index) => (
+              {unPublished.map((course, index) => (
                 <Box key={index}>
                   <CardContent sx={{ textAlign: "center" }}></CardContent>
                   <PublishCard
-                    title={cardData.title}
+                    title={course.courseName}
                     image={cardData.image}
-                    description={courses.}
+                    description={course.courseDescription}
+                    courseCode={course.courseCode}
                     buttonText="Publish"
-                    link="/teacher/home"
                   />
                 </Box>
               ))}
@@ -166,4 +164,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default HomePage;
